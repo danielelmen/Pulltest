@@ -49,7 +49,7 @@ def _issue_token(username: str, days: int = REMEMBER_DAYS) -> str:
     return _sign(payload)
 
 def _set_localstorage(token: str | None):
-    """Skriv/slet token i localStorage fra Python via en lille HTML/JS-blob."""
+    """Skriv/slet token i localStorage og sørg for at fjerne ?token på logout i TOP-vinduet."""
     if token:
         js = f"""
         <script>
@@ -58,35 +58,47 @@ def _set_localstorage(token: str | None):
         }} catch (e) {{}}
         </script>
         """
+        html(js, height=0)
     else:
+        # ryd localStorage og fjern ?token i top-vinduet via 'target=_top' klik
         js = f"""
         <script>
-        try {{
-          localStorage.removeItem("{LS_KEY}");
-          // Fjern ?token fra URL og reload
-          const url = new URL(window.location.href);
-          url.searchParams.delete("{TOKEN_QUERY_KEY}");
-          window.location.replace(url.toString());
-        }} catch (e) {{}}
+        (function(){{
+          try {{ localStorage.removeItem("{LS_KEY}"); }} catch(e) {{}}
+          try {{
+            const url = new URL(window.top.location.href);
+            url.searchParams.delete("{TOKEN_QUERY_KEY}");
+            const a = document.createElement("a");
+            a.href = url.toString();
+            a.target = "_top";
+            a.rel = "opener";
+            document.body.appendChild(a);
+            a.click();
+          }} catch (e) {{}}
+        }})();
         </script>
         """
-    html(js, height=0)
+        html(js, height=0)
 
 def _bootstrap_query_from_localstorage():
-    """Hvis URL ingen ?token har, men localStorage har => tilføj og reload."""
+    """Hvis URL ingen ?token har, men localStorage har => sæt ?token i TOP-vinduet og reload."""
     js = f"""
     <script>
     (function(){{
       try {{
         const key = "{LS_KEY}";
         const qk  = "{TOKEN_QUERY_KEY}";
-        const url = new URL(window.location.href);
-        const has = url.searchParams.get(qk);
+        const topUrl = new URL(window.top.location.href);
+        const has = topUrl.searchParams.get(qk);
         const local = window.localStorage.getItem(key);
         if (!has && local) {{
-          url.searchParams.set(qk, local);
-          // hard reload så Streamlit fanger query param
-          window.location.replace(url.toString());
+          topUrl.searchParams.set(qk, local);
+          const a = document.createElement("a");
+          a.href = topUrl.toString();
+          a.target = "_top";
+          a.rel = "opener";
+          document.body.appendChild(a);
+          a.click();
         }}
       }} catch (e) {{}}
     }})();
