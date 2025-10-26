@@ -53,20 +53,23 @@ def _get_cookie_mgr():
     # constructorens key er OK at bruge (det er IKKE det samme som set(..., key=...))
     return stx.CookieManager(key=COOKIE_KEY)
 
-def _set_cookie(token: Optional[str]):
+def _set_cookie(token: str | None):
     cm = _get_cookie_mgr()
     if token:
         expires = datetime.now(timezone.utc) + timedelta(days=REMEMBER_DAYS)
-        # fjern key=... her!
-        cm.set(COOKIE_NAME, token, expires=expires, same_site="Lax")
+        # vigtige ændringer: brug expires_at=..., og gerne same_site="lax"
+        cm.set(COOKIE_NAME, token, expires_at=expires, same_site="lax")
     else:
-        # fjern key=... her!
         cm.delete(COOKIE_NAME)
 
-def _get_cookie() -> Optional[str]:
+
+def _get_cookie() -> str | None:
     cm = _get_cookie_mgr()
-    # du kan enten bruge get_all() eller direkte get(name)
-    return (cm.get(COOKIE_NAME) or {}).get(COOKIE_NAME)
+    v = cm.get(COOKIE_NAME)
+    if isinstance(v, dict):  # fallback for ældre varianter
+        return v.get(COOKIE_NAME)
+    return v
+
 
 
 # --- Public API ---
