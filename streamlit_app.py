@@ -79,7 +79,7 @@ def _get_cookie() -> str | None:
 def authenticate():
     # Sørg for at komponenten er oprettet én gang i dette run
     _ = _get_cookie_mgr()
-    
+
     st.session_state.setdefault("authenticated", False)
     st.session_state.setdefault("username", "")
 
@@ -121,10 +121,47 @@ def authenticate():
     st.stop()  # stop resten af appen når ikke logget ind
 
 def perform_logout():
+    # Sørg for at CookieManager er instansieret i dette run
+    _ = _get_cookie_mgr()
+
+    # 1) Ryd session flags
     st.session_state["authenticated"] = False
     st.session_state["username"] = ""
-    _set_cookie(None)  # ryd cookie
+
+    # 2) Slet cookie via komponenten
+    try:
+        _get_cookie_mgr().delete(COOKIE_NAME)
+    except Exception:
+        pass
+
+    # 3) JS-fallback (slet cookie i top-domænet, hvis noget gik galt)
+    st.markdown(
+        f"""
+        <script>
+        (function(){{
+          try {{
+            // Slet cookie for både standard path og roden
+            const del = (p) => {{
+              document.cookie = "{COOKIE_NAME}=; Path=" + p + "; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+            }};
+            del("/");
+            del(window.location.pathname || "/");
+          }} catch(e) {{}}
+        }})();
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # 4) (Valgfrit) ryd evt. gamle query params fra tidligere implementationer
+    try:
+        st.experimental_set_query_params()
+    except Exception:
+        pass
+
+    # 5) Rerun så vi lander på login-skærmen uden cookie
     st.rerun()
+
 
 
 
