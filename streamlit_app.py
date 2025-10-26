@@ -832,17 +832,31 @@ with tab1:
     days_left = max(1, 7 - today.weekday())  # inkl. i dag
     avg_needed = (remaining + days_left - 1) // days_left  # ceil
 
-    # 4 metrics (uden All time)
-    col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("I dag", my_day_total)
-    col2.metric("Denne uge", my_week_total)
-    col3.metric(f"Til {goal}", remaining)
-    col4.metric("Tilbage pr. dag/ugen", avg_needed)
-    col5.metric("Ugestreak 🔥", streak)
-    # Progress bar under metrics
+    # --- Kompakte, horisontale metrics der kan scrolle på mobil ---
+    st.markdown(f"""
+    <style>
+    .metrics-row{{display:flex;gap:8px;overflow-x:auto;padding:4px 2px;scroll-snap-type:x mandatory}}
+    .metric{{flex:0 0 auto;min-width:110px;scroll-snap-align:start;border:1px solid #e5e7eb;border-radius:12px;
+    padding:8px 10px;background:#f8fafc}}
+    .metric .lab{{font-size:11px;color:#6b7280;margin-bottom:2px}}
+    .metric .val{{font-size:18px;font-weight:800;line-height:1;color:#111827}}
+    @media (prefers-color-scheme: dark){{
+    .metric{{border-color:#334155;background:#0f172a}}
+    .metric .lab{{color:#9ca3af}} .metric .val{{color:#e5e7eb}}
+    }}
+    </style>
+    <div class="metrics-row">
+    <div class="metric"><div class="lab">I dag</div><div class="val">{int(my_day_total)}</div></div>
+    <div class="metric"><div class="lab">Denne uge</div><div class="val">{int(my_week_total)}</div></div>
+    <div class="metric"><div class="lab">Til {int(goal)}</div><div class="val">{int(remaining)}</div></div>
+    <div class="metric"><div class="lab">Tilbage pr. dag/ugen</div><div class="val">{int(avg_needed)}</div></div>
+    <div class="metric"><div class="lab">Ugestreak 🔥</div><div class="val">{int(streak)}</div></div>
+    </div>
+    """, unsafe_allow_html=True)
+
     progress = (my_week_total / goal) if goal > 0 else 0
-    progress = max(0.0, min(progress, 1.0))
-    st.progress(progress)
+    st.progress(max(0.0, min(progress, 1.0)))
+
 
 
     st.subheader("Dine loggede pullups (i dag)")
