@@ -12,6 +12,8 @@ REMEMBER_DAYS = int(st.secrets.get("remember_days", 30))
 COOKIE_NAME = st.secrets.get("cookie_name", "pullups_auth")
 COOKIE_KEY = st.secrets.get("cookie_key", "pullups_cookie_namespace")  # namespace for the component
 
+_COOKIE_MGR = None  # <-- global singleton
+
 # --- Token helpers (HMAC-signeret payload) ---
 def _b64u(x: bytes) -> str:
     import base64
@@ -50,9 +52,11 @@ def _issue_token(username: str, days: int = REMEMBER_DAYS) -> str:
 
 # --- Cookie manager (top-level cookies, delt på tværs af faner) ---
 def _get_cookie_mgr():
-    # VIGTIGT: Ingen caching! Widgets/komponenter må ikke være inde i cache-dekorerede funktioner.
-    # En stabil key sikrer, at komponenten "er den samme" mellem reruns.
-    return stx.CookieManager(key=COOKIE_KEY)
+    global _COOKIE_MGR
+    if _COOKIE_MGR is None:
+        # Opret KUN én CookieManager med stabil key
+        _COOKIE_MGR = stx.CookieManager(key=COOKIE_KEY)
+    return _COOKIE_MGR
 
 def _set_cookie(token: str | None):
     cm = _get_cookie_mgr()
@@ -73,6 +77,9 @@ def _get_cookie() -> str | None:
 
 # --- Public API ---
 def authenticate():
+    # Sørg for at komponenten er oprettet én gang i dette run
+    _ = _get_cookie_mgr()
+    
     st.session_state.setdefault("authenticated", False)
     st.session_state.setdefault("username", "")
 
