@@ -62,7 +62,7 @@ def _set_cookie(token: str | None):
     cm = _get_cookie_mgr()
     if token:
         expires = datetime.now(timezone.utc) + timedelta(days=REMEMBER_DAYS)
-        cm.set(COOKIE_NAME, token, expires_at=expires, same_site="lax")
+        cm.set(COOKIE_NAME, token, expires_at=expires, same_site="Lax")
     else:
         cm.delete(COOKIE_NAME)
 
@@ -92,9 +92,9 @@ def authenticate():
     if token:
         payload = _verify(token)
         if payload and (u := payload.get("u")) in USERS:
-            # succes: sæt session + roll token (forny udløb ved besøg)
             st.session_state["authenticated"] = True
             st.session_state["username"] = u
+            # valgfrit: “rolling” fornyelse
             fresh = _issue_token(u)
             _set_cookie(fresh)
             return
@@ -109,12 +109,29 @@ def authenticate():
         if username in USERS and USERS[username] == password:
             st.session_state["authenticated"] = True
             st.session_state["username"] = username
+
             if remember:
                 t = _issue_token(username)
-                _set_cookie(t)     # <- sæt cookie (delt på tværs af faner)
+                _set_cookie(t)  # skriv cookie i browseren
+
+                # VIGTIGT: giv browseren et øjeblik til at skrive cookien,
+                # reload i TOP-vinduet, og stop Python-runnet nu.
+                st.success("Logget ind – husker dit login på denne enhed.")
+                st.markdown(
+                    """
+                    <script>
+                    setTimeout(function(){
+                    try { window.top.location.reload(); }
+                    catch(e){ window.location.reload(); }
+                    }, 150);
+                    </script>
+                    """,
+                    unsafe_allow_html=True
+                )
+                st.stop()
             else:
-                _set_cookie(None)  # sikkerhedsnet
-            st.rerun()
+                _set_cookie(None)
+                st.rerun()
         else:
             st.error("Forkert brugernavn eller adgangskode")
 
