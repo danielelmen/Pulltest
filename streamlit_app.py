@@ -50,22 +50,24 @@ def _issue_token(username: str, days: int = REMEMBER_DAYS) -> str:
 # --- Cookie manager (top-level cookies, delt på tværs af faner) ---
 @st.cache_resource
 def _get_cookie_mgr():
-    # key sikrer én instans pr. app; sameSite="Lax" så redirect/åbning i ny fane også virker
+    # constructorens key er OK at bruge (det er IKKE det samme som set(..., key=...))
     return stx.CookieManager(key=COOKIE_KEY)
 
 def _set_cookie(token: Optional[str]):
     cm = _get_cookie_mgr()
     if token:
-        # expires argument accepterer datetime; vi sætter rolling expiry
-        expires = (datetime.now(timezone.utc) + timedelta(days=REMEMBER_DAYS))
-        cm.set(COOKIE_NAME, token, expires=expires, key=COOKIE_NAME, same_site="Lax")
+        expires = datetime.now(timezone.utc) + timedelta(days=REMEMBER_DAYS)
+        # fjern key=... her!
+        cm.set(COOKIE_NAME, token, expires=expires, same_site="Lax")
     else:
-        cm.delete(COOKIE_NAME, key=COOKIE_NAME)
+        # fjern key=... her!
+        cm.delete(COOKIE_NAME)
 
 def _get_cookie() -> Optional[str]:
     cm = _get_cookie_mgr()
-    cookies = cm.get_all() or {}
-    return cookies.get(COOKIE_NAME)
+    # du kan enten bruge get_all() eller direkte get(name)
+    return (cm.get(COOKIE_NAME) or {}).get(COOKIE_NAME)
+
 
 # --- Public API ---
 def authenticate():
