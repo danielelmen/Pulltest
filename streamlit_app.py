@@ -979,77 +979,71 @@ with tab1:
 
         today = dt.date.today()
 
-        # Byg kortene (HTML), med highlight af "i dag" og weekend
-        cards_html = []
-        for i, d in enumerate(week_days):
-            label = DANISH_DOW[i]
-            val = daily_map.get(d, 0)
-            date_str = d.strftime("%d/%m")  # vis dato under label
-            classes = ["day-card"]
-            if d == today:
-                classes.append("is-today")
-            if i >= 5:  # Lør/Søn
-                classes.append("is-weekend")
-            if val == 0:
-                classes.append("is-zero")
-
-            cards_html.append(f"""
-            <div class="{' '.join(classes)}">
-            <div class="lab">{label}</div>
-            <div class="date">{date_str}</div>
-            <div class="val">{val}</div>
-            </div>
-            """)
-
-        st.markdown(f"""
+        st.markdown("""
         <style>
-        .day-grid {{
+        .day-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr)); /* Mobil: 3 -> 3+3+1 */
         gap: 10px;
         margin: 6px 0 12px 0;
-        }}
-        @media (max-width: 380px) {{
-        /* Meget smalle mobiler: 2 kolonner */
-        .day-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-        }}
-        @media (min-width: 640px) {{
-        /* Små tablets: 4 kolonner (4+3) */
-        .day-grid {{ grid-template-columns: repeat(4, minmax(0, 1fr)); }}
-        }}
-        @media (min-width: 1024px) {{
-        /* Desktop: 7 på én række */
-        .day-grid {{ grid-template-columns: repeat(7, minmax(0, 1fr)); }}
-        }}
+        }
+        @media (max-width: 380px) {
+        .day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (min-width: 640px) {
+        .day-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1024px) {
+        .day-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+        }
 
-        .day-card {{
+        .day-card {
         border: 1px solid #e5e7eb;
         border-radius: 14px;
         background: linear-gradient(135deg, #f8fafc, #f1f5f9);
         padding: 10px 12px;
         display: flex; flex-direction: column; gap: 4px;
-        }}
-        .day-card .lab {{ font-size: 12px; color: #6b7280; line-height: 1.1; }}
-        .day-card .date {{ font-size: 11px; color: #94a3b8; }}
-        .day-card .val {{ font-size: clamp(18px, 3.3vw, 22px); font-weight: 800; color: #111827; }}
+        }
+        .day-card .lab { font-size: 12px; color: #6b7280; line-height: 1.1; }
+        .day-card .date { font-size: 11px; color: #94a3b8; }
+        .day-card .val { font-size: clamp(18px, 3.3vw, 22px); font-weight: 800; color: #111827; }
 
-        .day-card.is-today {{ border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96,165,250,0.15) inset; }}
-        .day-card.is-weekend .lab {{ color: #64748b; }}
-        .day-card.is-zero .val {{ opacity: 0.8; }}
+        .day-card.is-today { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96,165,250,0.15) inset; }
+        .day-card.is-weekend .lab { color: #64748b; }
+        .day-card.is-zero .val { opacity: 0.8; }
 
-        @media (prefers-color-scheme: dark) {{
-        .day-card {{ border-color:#334155; background: linear-gradient(135deg,#0b1220,#0f172a); }}
-        .day-card .lab {{ color:#9ca3af; }}
-        .day-card .date {{ color:#64748b; }}
-        .day-card .val {{ color:#e5e7eb; }}
-        .day-card.is-today {{ border-color:#38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.18) inset; }}
-        }}
+        @media (prefers-color-scheme: dark) {
+        .day-card { border-color:#334155; background: linear-gradient(135deg,#0b1220,#0f172a); }
+        .day-card .lab { color:#9ca3af; }
+        .day-card .date { color:#64748b; }
+        .day-card .val { color:#e5e7eb; }
+        .day-card.is-today { border-color:#38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.18) inset; }
+        }
         </style>
-
-        <div class="day-grid">
-        {''.join(cards_html)}
-        </div>
         """, unsafe_allow_html=True)
+
+        # Byg kortene (HTML), med highlight af "i dag" og weekend
+        cards_html = []
+        for i, d in enumerate(week_days):
+            label = DANISH_DOW[i]
+            val = daily_map.get(d, 0)
+            date_str = d.strftime("%d/%m")
+            classes = ["day-card"]
+            if d == dt.date.today():
+                classes.append("is-today")
+            if i >= 5:
+                classes.append("is-weekend")
+            if val == 0:
+                classes.append("is-zero")
+            cards_html.append(
+                f'<div class="{" ".join(classes)}">'
+                f'<div class="lab">{label}</div>'
+                f'<div class="date">{date_str}</div>'
+                f'<div class="val">{val}</div>'
+                f'</div>'
+            )
+
+        st.markdown('<div class="day-grid">' + "".join(cards_html) + '</div>', unsafe_allow_html=True)
 
 
 
