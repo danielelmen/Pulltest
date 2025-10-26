@@ -4,6 +4,7 @@ from typing import Optional
 import streamlit as st
 import extra_streamlit_components as stx  # NEW
 
+
 # --- Settings / secrets ---
 USERS = st.secrets.get("users", {})
 AUTH_SECRET = st.secrets.get("auth_secret", "dev-secret-change-me").encode("utf-8")
@@ -48,25 +49,23 @@ def _issue_token(username: str, days: int = REMEMBER_DAYS) -> str:
     return _sign(payload)
 
 # --- Cookie manager (top-level cookies, delt på tværs af faner) ---
-@st.cache_resource
 def _get_cookie_mgr():
-    # constructorens key er OK at bruge (det er IKKE det samme som set(..., key=...))
+    # VIGTIGT: Ingen caching! Widgets/komponenter må ikke være inde i cache-dekorerede funktioner.
+    # En stabil key sikrer, at komponenten "er den samme" mellem reruns.
     return stx.CookieManager(key=COOKIE_KEY)
 
 def _set_cookie(token: str | None):
     cm = _get_cookie_mgr()
     if token:
         expires = datetime.now(timezone.utc) + timedelta(days=REMEMBER_DAYS)
-        # vigtige ændringer: brug expires_at=..., og gerne same_site="lax"
         cm.set(COOKIE_NAME, token, expires_at=expires, same_site="lax")
     else:
         cm.delete(COOKIE_NAME)
 
-
 def _get_cookie() -> str | None:
     cm = _get_cookie_mgr()
     v = cm.get(COOKIE_NAME)
-    if isinstance(v, dict):  # fallback for ældre varianter
+    if isinstance(v, dict):  # kompatibilitet på tværs af versioner
         return v.get(COOKIE_NAME)
     return v
 
