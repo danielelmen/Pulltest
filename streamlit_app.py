@@ -15,6 +15,15 @@ users = st.secrets.get("users", {})
 
 
 def authenticate():
+    if "authenticated" not in st.session_state:
+        st.session_state["authenticated"] = False
+    if "username" not in st.session_state:
+        st.session_state["username"] = ""
+
+    # Hvis vi allerede er logget ind, så stop her
+    if st.session_state["authenticated"]:
+        return
+
     st.title("Log ind")
     username = st.text_input("Brugernavn")
     password = st.text_input("Adgangskode", type="password")
