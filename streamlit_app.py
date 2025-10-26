@@ -2,6 +2,7 @@ import base64, hmac, hashlib, json
 from urllib.parse import urlencode
 import streamlit as st
 from streamlit.components.v1 import html
+import time
 
 USERS = st.secrets.get("users", {})
 AUTH_SECRET = st.secrets.get("auth_secret", "dev-secret-change-me").encode("utf-8")
