@@ -300,7 +300,8 @@ def compute_week_label(d: dt.date) -> str:
 
 ################ Konfiguration ####################
 DATA_HEADERS = ["username","date","pullups","week_start","week_number"]
-SHEET_NAME = st.secrets.get("SHEET")
+SHEET_NAME = "PulltestSheet"
+#st.secrets.get("SHEET")
 MOTIVATION_TAB = "motivation"
 # Valgfrit: fast "seed"-dato så rotationen er stabil uanset app restarts.
 ROTATION_SEED = st.secrets.get("ROTATION_SEED", "2025-01-01")
