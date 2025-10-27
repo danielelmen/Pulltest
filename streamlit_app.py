@@ -299,10 +299,9 @@ def compute_week_label(d: dt.date) -> str:
     return f"{iso.year}-W{iso.week:02d}"
 
 ################ Konfiguration ####################
-SHEET_TITLE = "PulltestSheet"  # skal matche din Google Sheet titel
 DATA_HEADERS = ["username","date","pullups","week_start","week_number"]
-SHEET_NAME = st.secrets.get("SHEET_NAME", "PulltestSheet")
-MOTIVATION_TAB = st.secrets.get("MOTIVATION_TAB", "motivation")
+SHEET_NAME = st.secrets.get("SHEET")
+MOTIVATION_TAB = "motivation"
 # Valgfrit: fast "seed"-dato så rotationen er stabil uanset app restarts.
 ROTATION_SEED = st.secrets.get("ROTATION_SEED", "2025-01-01")
 TZ = pytz.timezone("Europe/Copenhagen")
@@ -496,7 +495,7 @@ def get_client_and_sheet():
         ],
     )
     gc = gspread.authorize(creds)
-    sh = gc.open(SHEET_TITLE)
+    sh = gc.open(SHEET_NAME)
     return gc, sh
 
 def ensure_user_ws(tab_name: str):
