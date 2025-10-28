@@ -80,7 +80,13 @@ def _get_cookie() -> str | None:
         return v.get(COOKIE_NAME)
     return v
 
-
+def get_user_goal(username: str) -> tuple[int, bool]:
+    """Returnér (goal, found) — dvs. om brugeren allerede har et mål i settings."""
+    df = read_settings_df()
+    rec = df[df["username"].str.lower() == username.lower()]
+    if rec.empty:
+        return DEFAULT_WEEKLY_GOAL, False  # Ikke fundet i settings
+    return int(rec.iloc[0]["weekly_goal"]), True
 
 def monday_of(d: pd.Timestamp) -> pd.Timestamp:
     # Returnér mandag for den uge, som d tilhører
@@ -613,14 +619,6 @@ def read_settings_df() -> pd.DataFrame:
 
     return df
 
-
-def get_user_goal(username: str) -> tuple[int, bool]:
-    """Returnér (goal, found) — dvs. om brugeren allerede har et mål i settings."""
-    df = read_settings_df()
-    rec = df[df["username"].str.lower() == username.lower()]
-    if rec.empty:
-        return DEFAULT_WEEKLY_GOAL, False  # Ikke fundet i settings
-    return int(rec.iloc[0]["weekly_goal"]), True
 
 def set_user_goal(username: str, goal: int):
     """Skriv/overskriv målet i _settings (altid frit ændreligt)."""
