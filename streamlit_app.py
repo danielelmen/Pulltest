@@ -787,63 +787,53 @@ with tab1:
     days_left = max(1, 7 - today.weekday())  # inkl. i dag
     avg_needed = (remaining + days_left - 1) // days_left  # ceil
 
-    # Ens hero-blokke: All time (venstre) = I dag (midten)
     st.markdown("""
     <style>
     .hero-card {
         display: grid;
-        grid-template-columns: repeat(3, 1fr); /* 3 helt ens kolonner */
+        grid-template-columns: repeat(3, minmax(0, 1fr)); /* altid 3 kolonner */
         align-items: center;
-        gap: 16px;
+        gap: 12px;
     }
     .hero-block {
         display: flex;
         flex-direction: column;
-        align-items: center;         /* samme centrering for alle */
+        align-items: center;
         text-align: center;
-        padding: 8px 0;
+        padding: 6px 0;
     }
     .hero-label { font-size: 0.9rem; opacity: 0.8; }
-    .hero-number { font-weight: 700; font-size: 2.2rem; line-height: 1; }
+    /* Brug clamp for pæn skalering på telefon */
+    .hero-number { font-weight: 700; font-size: clamp(1.4rem, 6vw, 2.2rem); line-height: 1; }
     .hero-sub { font-size: 0.85rem; opacity: 0.75; }
 
-    /* Hvis du vil have streaken til at ligne præcis de andre tal,
-        så brug .hero-number også til streak. Ellers bevar .chip. */
-    .chip-as-number { 
-        font-weight: 700; font-size: 2.2rem; line-height: 1; 
-        padding: 0; background: none; border-radius: 0; 
-    }
-
+    /* VIGTIGT: fjern/overstyr tidligere "stack på mobil" regel */
     @media (max-width: 640px) {
-        .hero-card { grid-template-columns: 1fr; }
+        .hero-card { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
     </style>
     """, unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="hero-card">
-    <!-- VENSTRE: All time -->
     <div class="hero-block">
         <div class="hero-label">All time</div>
         <div class="hero-number">{format_int(all_time_total)}</div>
         {f'<div class="hero-sub">siden {first_date.isoformat()}</div>' if first_date else ''}
     </div>
 
-    <!-- MIDTEN: I dag -->
     <div class="hero-block">
         <div class="hero-label">I dag</div>
         <div class="hero-number">{format_int(my_day_total)}</div>
     </div>
 
-    <!-- HØJRE: Ugestreak -->
     <div class="hero-block">
         <div class="hero-label">Ugestreak 🔥</div>
-        <!-- Vælg ÉN af de to linjer herunder: -->
-        <div class="hero-number">{format_int(int(streak))}</div>           <!-- (A) ligner de andre -->
-        <!-- <div class="chip chip-as-number">{format_int(int(streak))}</div>  (B) behold chip-look men samme størrelse -->
+        <div class="hero-number">{format_int(int(streak))}</div>
     </div>
     </div>
     """, unsafe_allow_html=True)
+
 
 
 
