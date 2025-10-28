@@ -111,9 +111,19 @@ def compute_weekly_totals(df: pd.DataFrame, goal: int):
     return [(ws, int(total), total >= goal) for ws, total in w.items()]
 
 def current_streak(weekly_list):
-    """Tæl uger i træk (baglæns) hvor målet er nået."""
+    """Tæl uger i træk (baglæns) hvor målet er nået, ekskl. igangværende uge."""
+    # Find mandag i den aktuelle uge
+    today = pd.Timestamp.today().normalize()
+    this_week_start = (today - pd.Timedelta(days=today.weekday())).date()
+
+    # Fjern igangværende uge, hvis den ligger sidst i listen
+    if weekly_list and weekly_list[-1][0] == this_week_start:
+        weekly_iter = reversed(weekly_list[:-1])
+    else:
+        weekly_iter = reversed(weekly_list)
+
     s = 0
-    for _, _, ok in reversed(weekly_list):
+    for _, _, ok in weekly_iter:
         if ok:
             s += 1
         else:
