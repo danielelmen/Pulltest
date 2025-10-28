@@ -1207,33 +1207,46 @@ with tab2:
     # --- Ugentligt leaderboard (denne uge) ---
     st.subheader("🔥Ugentligt leaderboard")
 
-    # lav en 0–100 kolonne til visning
+    # Kun brugere som har logget noget (>0) i denne uge
     view = leaderboard.copy()
-    view["FremdriftPct"] = (view["pct"] * 100).clip(lower=0, upper=100)
 
-    st.data_editor(
-        view.rename(columns={
-            "username": "Bruger",
-            "week_total": "Ugens total",
-            "weekly_goal": "Mål",
-            "FremdriftPct": "Fremdrift",
-            "Status": "Status",
-        })[["Bruger", "Ugens total", "Mål", "Fremdrift", "Status"]],
-        use_container_width=True,
-        hide_index=True,
-        disabled=True,
-        column_config={
-            "Ugens total": st.column_config.NumberColumn("Ugens total", format="%d"),
-            "Mål": st.column_config.NumberColumn("Mål", format="%d"),
-            "Fremdrift": st.column_config.ProgressColumn(
-                "Fremdrift",
-                help="Andel af ugemål",
-                format="%.0f%%",   # nu passer det, fordi værdien er 0–100
-                min_value=0,
-                max_value=100,
-            ),
-        }
-    )
+    # Sikr numerisk og håndtér NaN som 0
+    view["week_total"] = pd.to_numeric(view["week_total"], errors="coerce").fillna(0)
+
+    # Filtrér dem med 0 væk og sorter faldende
+    view = view[view["week_total"] > 0].sort_values("week_total", ascending=False)
+
+    # Hvis tomt efter filter: vis info og stop
+    if view.empty:
+        st.info("Ingen har logget pullups endnu i denne uge 💤")
+    else:
+        # lav en 0–100 kolonne til visning
+        view["FremdriftPct"] = (view["pct"] * 100).clip(lower=0, upper=100)
+
+        st.data_editor(
+            view.rename(columns={
+                "username": "Bruger",
+                "week_total": "Ugens total",
+                "weekly_goal": "Mål",
+                "FremdriftPct": "Fremdrift",
+                "Status": "Status",
+            })[["Bruger", "Ugens total", "Mål", "Fremdrift", "Status"]],
+            use_container_width=True,
+            hide_index=True,
+            disabled=True,
+            column_config={
+                "Ugens total": st.column_config.NumberColumn("Ugens total", format="%d"),
+                "Mål": st.column_config.NumberColumn("Mål", format="%d"),
+                "Fremdrift": st.column_config.ProgressColumn(
+                    "Fremdrift",
+                    help="Andel af ugemål",
+                    format="%.0f%%",
+                    min_value=0,
+                    max_value=100,
+                ),
+            }
+        )
+
 
 
     # --- All-time leaderboard (uden 'Uger') ---
