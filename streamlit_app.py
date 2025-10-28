@@ -396,7 +396,7 @@ def render_top_banner(text: str):
     st.markdown(
         f"""
         <div style="
-            background: linear-gradient(90deg, #FEE2E2, #FEF3C7);
+            background: linear-gradient(90deg, #81DBBD, #1FA578);
             border: 1px solid #FCA5A5;
             padding: 10px 12px;
             border-radius: 10px;
@@ -404,7 +404,7 @@ def render_top_banner(text: str):
             display: flex; align-items: center; gap: 8px;
         ">
           <span style="
-            background:#F59E0B; color:white; font-weight:700; 
+            background:#138B6B; color:white; font-weight:700; 
             padding: 2px 8px; border-radius: 6px; font-size: 0.80rem;
             letter-spacing: .5px;
           ">🔔 Dagens update</span>
@@ -714,7 +714,7 @@ if not goal_found:
 
 ################ Forside: data & logging ####################
 tab_name = user_tab(user)
-st.title(f"💪 Pull-up Tracker 💪")
+st.title(f"💪 Pull-ups 💪")
 st.caption(f"🏋️ Velkommen {user}")
 
 # --- Kør banneret ---
