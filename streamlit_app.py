@@ -842,10 +842,56 @@ with tab1:
     avg_needed = (remaining + days_left - 1) // days_left  # ceil
 
     #Display af tre elementer
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Denne uge", my_week_total)
-    col2.metric(f"Til {goal}", remaining)
-    col3.metric("Resterende pr. dag for ugen", avg_needed)
+    # --- Responsive metrics: 3 i én række (2 på meget små mobiler) ---
+    st.markdown(f"""
+    <style>
+    .metrics-grid {{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr)); /* 3 kolonner som standard */
+    gap: 10px;
+    margin: 6px 0 10px 0;
+    }}
+    @media (max-width: 380px) {{
+    /* Ekstra smalle mobiler: 2 kolonner for bedre læsbarhed */
+    .metrics-grid {{ grid-template-columns: repeat(2, minmax(0,1fr)); }}
+    }}
+
+    .metric-card {{
+    border: 1px solid #e5e7eb; border-radius: 14px;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    padding: 10px 12px;
+    }}
+    .metric-label {{
+    font-size: 12px; color: #6b7280; line-height: 1.1;
+    }}
+    .metric-value {{
+    font-size: clamp(18px, 3.5vw, 22px);
+    font-weight: 800; line-height: 1.1; color: #111827;
+    }}
+
+    @media (prefers-color-scheme: dark) {{
+    .metric-card {{ border-color:#334155; background: linear-gradient(135deg,#0b1220,#0f172a); }}
+    .metric-label {{ color:#9ca3af; }}
+    .metric-value {{ color:#e5e7eb; }}
+    }}
+    </style>
+
+    <div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-label">Denne uge</div>
+        <div class="metric-value">{int(my_week_total)}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Tilbage</div>
+        <div class="metric-value">{int(remaining)}</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label">Resterende pr/dag</div>
+        <div class="metric-value">{int(avg_needed)}</div>
+    </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 
     st.subheader("Dagens pull-ups!")
