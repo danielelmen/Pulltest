@@ -1290,14 +1290,16 @@ with tab3:
     st.markdown("**Mål:** Sæt dit ugentlige pull-up-mål i **sidemenuen** og nå det inden **søndag kl. 23:59**.")
 
     st.divider()
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
         st.markdown("### 1) Log")
         st.markdown("Log dine pull-ups på **min uge**. Brug **🗑️ Fortryd** for at slette seneste log.")
     with col2:
         st.markdown("### 2) Track din fremgang")
         st.markdown("Se **dagens antal**, **ugens total** og **hvad der mangler** til målet.")
+        
     st.divider()
+    col3 = st.columns(1)
     with col3:
         st.markdown("### Community")
         st.markdown("Tjek **Community** for at se, hvordan det går de andre.")
