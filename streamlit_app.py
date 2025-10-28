@@ -1286,14 +1286,25 @@ with tab2:
 
 with tab3:
     st.header("Challenge")
-    st.write("Sæt dit ugentlige pull-up-mål i menuen til venstre")
-    st.write("Du bestemmer selv, hvordan du vil fordele dem, bare du når i mål inden ugen slutter")
-    st.write("Log dine pull-ups i boksen på forsiden. (Du kan også altid slette det seneste entry ved at klikke på fortryd knappen)")
-    st.write("Se hvor mange du mangler for at nå ugens mål")
-    st.write("Følg din fremgang og streaks uge for uge")
-    st.write("Brug community-fanen til at se, hvordan det går de andre")
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-    st.header("GET STRONG!")
+
+    st.markdown("**Mål:** Sæt dit ugentlige pull-up-mål i **sidemenuen** og nå det inden **søndag kl. 23:59**.")
+
+    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("### 1) Log")
+        st.markdown("Log dine pull-ups på **Forsiden**. Brug **🗑️ Fortryd** for at slette seneste log.")
+    with col2:
+        st.markdown("### 2) Følg med")
+        st.markdown("Se **dagens tal**, **ugens total** og **hvad der mangler** til målet.")
+
+    st.divider()
+    col3, col4 = st.columns(2)
+    with col3:
+        st.markdown("### Community")
+        st.markdown("Tjek **Community** for at se, hvordan det går de andre.")
+    with col4:
+        st.markdown("### Streaks")
+        st.markdown("Hold øje med **uger i træk ≥ 500**.")
+
+    st.markdown("## GET STRONG 💪")
