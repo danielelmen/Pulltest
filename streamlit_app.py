@@ -391,115 +391,30 @@ def pick_today_message(messages: list[str]) -> str:
     idx = days_since % len(messages)
     return messages[idx]
 
-def render_top_banner(
-    text: str,
-    label: str = "Dagens update",
-    variant: str = "info",  # "info" | "goal" | "warning" | "neutral"
-    icon: str = "🔔",
-):
-    # Farver pr. variant (lys, mørk)
-    palette = {
-        "info": {
-            "bg_light": "#F1F5F9",  # slate-100
-            "bd_light": "#CBD5E1",  # slate-300
-            "tag_light": "#0EA5E9", # sky-500
-            "fg_light": "#0F172A",  # slate-900
-            "bg_dark":  "#0B1220",
-            "bd_dark":  "#1F2A44",
-            "tag_dark": "#38BDF8",
-            "fg_dark":  "#E5E7EB",
-        },
-        "goal": {
-            "bg_light": "#ECFDF5",  # emerald-50
-            "bd_light": "#A7F3D0",  # emerald-200
-            "tag_light": "#10B981", # emerald-500
-            "fg_light": "#064E3B",
-            "bg_dark":  "#062A22",
-            "bd_dark":  "#155E4A",
-            "tag_dark": "#34D399",
-            "fg_dark":  "#D1FAE5",
-        },
-        "warning": {
-            "bg_light": "#FFFBEB",  # amber-50
-            "bd_light": "#FDE68A",  # amber-300
-            "tag_light": "#F59E0B", # amber-500
-            "fg_light": "#78350F",
-            "bg_dark":  "#231A05",
-            "bd_dark":  "#6B4E0C",
-            "tag_dark": "#FBBF24",
-            "fg_dark":  "#FDE68A",
-        },
-        "neutral": {
-            "bg_light": "#F8FAFC",  # slate-50
-            "bd_light": "#E2E8F0",  # slate-200
-            "tag_light": "#64748B", # slate-500
-            "fg_light": "#0F172A",
-            "bg_dark":  "#0B0F19",
-            "bd_dark":  "#1F2937",
-            "tag_dark": "#94A3B8",
-            "fg_dark":  "#E5E7EB",
-        },
-    }
-    if variant not in palette:
-        variant = "info"
-
-    c = palette[variant]
-    text = escape(text)
-    label = escape(label)
-    icon = escape(icon)
-
+def render_top_banner(text: str):
+    # kompakt “breaking news”-agtigt banner
     st.markdown(
         f"""
-        <style>
-        @media (prefers-color-scheme: dark) {{
-          .pu-banner {{
-            --bg: {c['bg_dark']};
-            --bd: {c['bd_dark']};
-            --tag: {c['tag_dark']};
-            --fg: {c['fg_dark']};
-          }}
-        }}
-        @media (prefers-color-scheme: light) {{
-          .pu-banner {{
-            --bg: {c['bg_light']};
-            --bd: {c['bd_light']};
-            --tag: {c['tag_light']};
-            --fg: {c['fg_light']};
-          }}
-        }}
-        .pu-banner {{
-          background: var(--bg);
-          border: 1px solid var(--bd);
-          padding: 10px 14px;
-          border-radius: 12px;
-          display: flex; align-items: center; gap: 10px;
-          color: var(--fg);
-          box-shadow: 0 1px 0 rgba(0,0,0,0.02), 0 1px 3px rgba(0,0,0,0.04);
-        }}
-        .pu-badge {{
-          background: color-mix(in oklab, var(--tag) 12%, white);
-          color: var(--fg);
-          border: 1px solid var(--tag);
-          padding: 2px 8px;
-          border-radius: 999px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          letter-spacing: .3px;
-          display: inline-flex; align-items: center; gap: 6px;
-          white-space: nowrap;
-        }}
-        .pu-text {{
-          font-size: 0.95rem;
-          line-height: 1.4;
-        }}
-        </style>
-        <div class="pu-banner">
-          <span class="pu-badge">{icon} {label}</span>
-          <span class="pu-text">{text}</span>
+        <div style="
+            background: linear-gradient(90deg, #FEE2E2, #FEF3C7);
+            border: 1px solid #FCA5A5;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            display: flex; align-items: center; gap: 8px;
+        ">
+          <span style="
+            background:#F59E0B; color:white; font-weight:700; 
+            padding: 2px 8px; border-radius: 6px; font-size: 0.80rem;
+            letter-spacing: .5px;
+          ">🔔 Dagens update</span>
+          <span style="color:#111827;">{text}</span>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+
 
 # Nyt _settings layout uden "locked"
 SETTINGS_SHEET = "_settings"
