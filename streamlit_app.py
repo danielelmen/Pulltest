@@ -404,10 +404,10 @@ def render_top_banner(text: str):
             display: flex; align-items: center; gap: 8px;
         ">
           <span style="
-            background:#E0C865; color:black; font-weight:700; 
+            background:#F37D7D; color:black; font-weight:700; 
             padding: 2px 8px; border-radius: 6px; font-size: 0.80rem;
             letter-spacing: .5px;
-          ">🔔 Dagens update</span>
+          ">🔔 Update</span>
           <span style="color:#111827;">{text}</span>
         </div>
         """,
