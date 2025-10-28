@@ -1297,11 +1297,10 @@ with tab3:
     with col2:
         st.markdown("### 2) Track din fremgang")
         st.markdown("Se **dagens antal**, **ugens total** og **hvad der mangler** til målet.")
-        
+
     st.divider()
-    col3 = st.columns(1)
-    with col3:
-        st.markdown("### Community")
-        st.markdown("Tjek **Community** for at se, hvordan det går de andre.")
+
+    st.markdown("### Community")
+    st.markdown("Tjek **Community** for at se, hvordan det går de andre.")
 
     st.markdown("## GET STRONG 💪")
