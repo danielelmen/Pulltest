@@ -1226,16 +1226,16 @@ with tab2:
         st.data_editor(
             view.rename(columns={
                 "username": "Bruger",
-                "week_total": "Ugens total",
+                "week_total": "Antal",
                 "weekly_goal": "Mål",
                 "FremdriftPct": "Fremdrift",
                 "Status": "Status",
-            })[["Bruger", "Ugens total", "Mål", "Fremdrift", "Status"]],
+            })[["Bruger", "Antal", "Mål", "Fremdrift", "Status"]],
             use_container_width=True,
             hide_index=True,
             disabled=True,
             column_config={
-                "Ugens total": st.column_config.NumberColumn("Ugens total", format="%d"),
+                "Antal": st.column_config.NumberColumn("Antal", format="%d"),
                 "Mål": st.column_config.NumberColumn("Mål", format="%d"),
                 "Fremdrift": st.column_config.ProgressColumn(
                     "Fremdrift",
