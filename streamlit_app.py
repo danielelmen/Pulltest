@@ -396,7 +396,7 @@ def render_top_banner(text: str):
     st.markdown(
         f"""
         <div style="
-            background: linear-gradient(90deg, #81DBBD, #1FA578);
+            background: linear-gradient(90deg, #FEE2E2, #FEF3C7);
             border: 1px solid #FCA5A5;
             padding: 10px 12px;
             border-radius: 10px;
