@@ -778,8 +778,8 @@ with tab1:
         {f'<div class="hero-sub">siden {first_date.isoformat()}</div>' if first_date else ''}
     </div>
     <div class="hero-right">
-        <div>Ugemål</div>
-        <div class="chip">{format_int(int(current_goal))}</div>
+        <div>Ugestreak 🔥</div>
+        <div class="chip">{format_int(int(streak))}</div>
     </div>
     </div>
     """, unsafe_allow_html=True)
