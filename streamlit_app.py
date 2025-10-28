@@ -404,7 +404,7 @@ def render_top_banner(text: str):
             display: flex; align-items: center; gap: 8px;
         ">
           <span style="
-            background:#138B6B; color:white; font-weight:700; 
+            background:#E0C865; color:white; font-weight:700; 
             padding: 2px 8px; border-radius: 6px; font-size: 0.80rem;
             letter-spacing: .5px;
           ">🔔 Dagens update</span>
