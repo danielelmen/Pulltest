@@ -785,32 +785,7 @@ with tab1:
     days_left = max(1, 7 - today.weekday())  # inkl. i dag
     avg_needed = (remaining + days_left - 1) // days_left  # ceil
 
-    st.markdown("""
-    <style>
-    .hero-card {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr)); /* altid 3 kolonner */
-        align-items: center;
-        gap: 12px;
-    }
-    .hero-block {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding: 6px 0;
-    }
-    .hero-label { font-size: 0.9rem; opacity: 0.8; }
-    /* Brug clamp for pæn skalering på telefon */
-    .hero-number { font-weight: 700; font-size: clamp(1.4rem, 6vw, 2.2rem); line-height: 1; }
-    .hero-sub { font-size: 0.85rem; opacity: 0.75; }
 
-    /* VIGTIGT: fjern/overstyr tidligere "stack på mobil" regel */
-    @media (max-width: 640px) {
-        .hero-card { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-    </style>
-    """, unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="hero-card">
