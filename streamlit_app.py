@@ -841,79 +841,14 @@ with tab1:
     days_left = max(1, 7 - today.weekday())  # inkl. i dag
     avg_needed = (remaining + days_left - 1) // days_left  # ceil
 
-    # --- Responsive metrics: 3+2 på mobil, 5 på desktop (ingen scroll) ---
-    st.markdown(f"""
-    <style>
-    .metrics-grid {{
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0,1fr)); /* Mobil: 3 kolonner -> 3 øverst, 2 nederst */
-    gap: 10px;
-    margin: 6px 0 10px 0;
-    }}
-    @media (max-width: 380px) {{
-    /* Ekstra smalle mobiler: 2 kolonner for bedre læsbarhed */
-    .metrics-grid {{ grid-template-columns: repeat(2, minmax(0,1fr)); }}
-    }}
-    @media (min-width: 768px) {{
-    /* Tablet/desktop: 5 i én række */
-    .metrics-grid {{ grid-template-columns: repeat(5, minmax(0,1fr)); }}
-    }}
-
-    .metric-card {{
-    border: 1px solid #e5e7eb; border-radius: 14px;
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-    padding: 10px 12px;
-    }}
-    .metric-label {{
-    font-size: 12px; color: #6b7280; line-height: 1.1;
-    }}
-    .metric-value {{
-    /* Skaler pænt fra mobil til desktop */
-    font-size: clamp(18px, 3.5vw, 22px);
-    font-weight: 800; line-height: 1.1; color: #111827;
-    }}
-
-    @media (prefers-color-scheme: dark) {{
-    .metric-card {{ border-color:#334155; background: linear-gradient(135deg,#0b1220,#0f172a); }}
-    .metric-label {{ color:#9ca3af; }}
-    .metric-value {{ color:#e5e7eb; }}
-    }}
-    </style>
-
-    <div class="metrics-grid">
-    <div class="metric-card">
-        <div class="metric-label">I dag</div>
-        <div class="metric-value">{int(my_day_total)}</div>
-    </div>
-    <div class="metric-card">
-        <div class="metric-label">Denne uge</div>
-        <div class="metric-value">{int(my_week_total)}</div>
-    </div>
-    <div class="metric-card">
-        <div class="metric-label">Til {int(goal)}</div>
-        <div class="metric-value">{int(remaining)}</div>
-    </div>
-    <div class="metric-card">
-        <div class="metric-label">Tilbage pr. dag/ugen</div>
-        <div class="metric-value">{int(avg_needed)}</div>
-    </div>
-    <div class="metric-card">
-        <div class="metric-label">Ugestreak 🔥</div>
-        <div class="metric-value">{int(streak)}</div>
-    </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Progress bar under metrics (samme som før)
-    progress = (my_week_total / goal) if goal > 0 else 0
-    progress = max(0.0, min(progress, 1.0))
-    st.progress(progress)
+    #Display af tre elementer
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Denne uge", my_week_total)
+    col2.metric(f"Til {goal}", remaining)
+    col3.metric("Resterende pr. dag for ugen", avg_needed)
 
 
-
-
-
-    st.subheader("Dine loggede pullups (i dag)")
+    st.subheader("Dagens pull-ups!")
 
     if my_week.empty:
         st.dataframe(pd.DataFrame(columns=["date", "pullups"]), use_container_width=True)
