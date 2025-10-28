@@ -769,20 +769,29 @@ with tab1:
         except Exception:
             first_date = None
 
-    # --- HERO: All time i toppen ---
+
+
+    # --- HERO: All time + I dag (midten) + streak (højre) ---
     st.markdown(f"""
-    <div class="hero-card">
+    <div class="hero-card hero-3">
     <div class="hero-left">
         <div class="hero-label">All time</div>
         <div class="hero-number">{format_int(all_time_total)}</div>
         {f'<div class="hero-sub">siden {first_date.isoformat()}</div>' if first_date else ''}
     </div>
-    <div class="hero-right">
+
+    <div class="hero-center">
+        <div class="hero-label">I dag</div>
+        <div class="hero-number">{format_int(my_day_total)}</div>
+    </div>
+
+    <div class="hero-right" style="align-items:flex-end;">
         <div>Ugestreak 🔥</div>
         <div class="chip">{format_int(int(streak))}</div>
     </div>
     </div>
     """, unsafe_allow_html=True)
+
 
     st.write("")  # bare for at lave lidt luft
 
