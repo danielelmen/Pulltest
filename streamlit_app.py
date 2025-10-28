@@ -736,9 +736,11 @@ with tab1:
     df_user = all_df[all_df["username"].str.lower() == username.lower()].copy()
 
     # 3) Sæt ugemål og beregn streak
-    current_goal = st.session_state.get("weekly_goal", 500)
+    # Hent mål fra _settings (cachet) og spejl i session for ensartethed i UI
+    current_goal, found = get_user_goal(username)      # din funktion fra før
+    st.session_state["weekly_goal"] = int(current_goal)
 
-    weekly = compute_weekly_totals(df_user, current_goal)
+    weekly = compute_weekly_totals(df_user, int(current_goal))
     streak = current_streak(weekly)
 
     # 4) Beregn denne uges tal til UI
@@ -747,7 +749,7 @@ with tab1:
     this_monday = (now - pd.Timedelta(days=now.weekday())).date()
     weekly_total = int(tmp.loc[tmp["week_start"] == this_monday, "pullups"].sum()) if not tmp.empty else 0
 
-    remaining = max(0, current_goal - weekly_total)
+    remaining = max(0, int(current_goal) - weekly_total)
     days_left = 7 - now.weekday()            # inkl. i dag
     avg_needed = (remaining / max(1, days_left)) if current_goal > 0 else 0
     progress = (weekly_total / current_goal) if current_goal > 0 else 0.0
