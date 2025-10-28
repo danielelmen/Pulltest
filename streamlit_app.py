@@ -760,16 +760,11 @@ with tab1:
         st.success("Du er i MÅL! 💥")
         st.balloons()
 
-    # --- All time & startdato (beregning) ---
+    # --- All time ---
     all_time_total = int(df["pullups"].sum()) if not df.empty else 0
-    first_date = None
-    if not df.empty and "date" in df.columns:
-        try:
-            first_date = pd.to_datetime(df["date"]).min().date()
-        except Exception:
-            first_date = None
 
-        # Stats for i dag og denne uge
+
+    # Stats for i dag og denne uge
     today = dt.date.today()
     this_week_start = monday_of_week(today).isoformat()
 
@@ -819,7 +814,6 @@ with tab1:
     <div class="hero-block">
         <div class="hero-label">All time</div>
         <div class="hero-number">{format_int(all_time_total)}</div>
-        {f'<div class="hero-sub">siden {first_date.isoformat()}</div>' if first_date else ''}
     </div>
 
     <div class="hero-block">
