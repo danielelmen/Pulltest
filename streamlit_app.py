@@ -769,7 +769,23 @@ with tab1:
         except Exception:
             first_date = None
 
+        # Stats for i dag og denne uge
+    today = dt.date.today()
+    this_week_start = monday_of_week(today).isoformat()
 
+    my_week = pd.DataFrame(columns=df.columns if not df.empty else DATA_HEADERS)
+    my_day_total = 0
+    my_week_total = 0
+
+    if not df.empty:
+        my_week = df[df["week_start"] == this_week_start]
+        my_day_total = int(my_week[my_week["date"] == today.isoformat()]["pullups"].sum())
+        my_week_total = int(my_week["pullups"].sum())
+
+    goal = max(int(current_goal), 1)
+    remaining = max(goal - my_week_total, 0)
+    days_left = max(1, 7 - today.weekday())  # inkl. i dag
+    avg_needed = (remaining + days_left - 1) // days_left  # ceil
 
     # --- HERO: All time + I dag (midten) + streak (højre) ---
     st.markdown(f"""
@@ -831,24 +847,6 @@ with tab1:
             except Exception as e:
                 st.error(f"Uventet fejl under logning: {e}")
 
-
-    # Stats for i dag og denne uge
-    today = dt.date.today()
-    this_week_start = monday_of_week(today).isoformat()
-
-    my_week = pd.DataFrame(columns=df.columns if not df.empty else DATA_HEADERS)
-    my_day_total = 0
-    my_week_total = 0
-
-    if not df.empty:
-        my_week = df[df["week_start"] == this_week_start]
-        my_day_total = int(my_week[my_week["date"] == today.isoformat()]["pullups"].sum())
-        my_week_total = int(my_week["pullups"].sum())
-
-    goal = max(int(current_goal), 1)
-    remaining = max(goal - my_week_total, 0)
-    days_left = max(1, 7 - today.weekday())  # inkl. i dag
-    avg_needed = (remaining + days_left - 1) // days_left  # ceil
 
     #Display af tre elementer
     # --- Responsive metrics: 3 i én række (2 på meget små mobiler) ---
