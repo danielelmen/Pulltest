@@ -376,7 +376,7 @@ def load_motivation_messages(_date_key: str) -> list[str]:
 
 def pick_today_message(messages: list[str]) -> str:
     if not messages:
-        return "Breaking: Intet nyt… men pullupsne laver ikke sig selv! 💪"
+        return "Breaking: Intet nyt… men pull-upsne laver ikke sig selv! 💪"
 
     today_local = datetime.now(TZ).date()
     seed_date = date.fromisoformat(ROTATION_SEED)
@@ -757,7 +757,7 @@ with tab1:
 
     # 6) (Valgfrit) Fejr når ugemål nås
     if weekly_total >= current_goal:
-        st.success("UGEN ER I HUS! 💥")
+        st.success("Du er i MÅL! 💥")
         st.balloons()
 
     # --- All time & startdato (beregning) ---
@@ -1126,7 +1126,7 @@ with tab1:
 
             # Pæne labels/kolonner
             weekly["uge"] = weekly.apply(
-                lambda r: f"{int(r['iso_year'])}-W{int(r['iso_week']):02d}" if pd.notna(r["iso_year"]) and pd.notna(r["iso_week"]) else "",
+                lambda r: f"{int(r['iso_year'])} - Week {int(r['iso_week']):02d}" if pd.notna(r["iso_year"]) and pd.notna(r["iso_week"]) else "",
                 axis=1
             )
             weekly["uge_start"] = weekly["week_start"].astype(str)
