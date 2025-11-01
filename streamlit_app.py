@@ -1225,7 +1225,7 @@ with tab2:
     view["week_total"] = pd.to_numeric(view["week_total"], errors="coerce").fillna(0)
 
     # Filtrér dem med 0 væk og sorter faldende
-    view = view[view["week_total"] > 0].sort_values("week_total", ascending=False)
+    view = view[view["week_total"] > 0].sort_values("pct", ascending=False)
 
     # Hvis tomt efter filter: vis info og stop
     if view.empty:
