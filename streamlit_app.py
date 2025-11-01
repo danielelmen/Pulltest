@@ -172,7 +172,7 @@ def read_all_users_df(tab_names: List[str]) -> pd.DataFrame:
         try:
             # <- Begge netværkskald beskyttes af retry
             ws = gs_retry(sh.worksheet, name)
-            values = gs_retry(ws.get, "A1:E10000")
+            values = gs_retry(ws.get, "A1:F10000")
 
             if not values:
                 continue
@@ -266,7 +266,7 @@ def read_all_users_df(tab_names: List[str]) -> pd.DataFrame:
         try:
             # ← Tilføj gs_retry her for at håndtere rate limits / 5xx
             ws = gs_retry(sh.worksheet, name)
-            values = gs_retry(ws.get, "A1:E10000")
+            values = gs_retry(ws.get, "A1:F10000")
 
             if not values:
                 continue
@@ -316,7 +316,7 @@ def compute_week_label(d: dt.date) -> str:
     return f"{iso.year}-W{iso.week:02d}"
 
 ################ Konfiguration ####################
-DATA_HEADERS = ["username","date","pullups","week_start","week_number"]
+DATA_HEADERS = ["username","date","pullups","week_start","week_number","logged_at"]
 SHEET_NAME = st.secrets.get("SHEET")
 MOTIVATION_TAB = "motivation"
 # Valgfrit: fast "seed"-dato så rotationen er stabil uanset app restarts.
@@ -564,7 +564,7 @@ def read_user_df(tab_name: str) -> pd.DataFrame:
     _, sh = get_client_and_sheet()
     try:
         ws = gs_retry(sh.worksheet, tab_name)          # API-kald 1 (retry)
-        values = gs_retry(ws.get, "A1:E10000")         # API-kald 2 (retry)
+        values = gs_retry(ws.get, "A1:F10000")         # API-kald 2 (retry)
     except gspread.exceptions.WorksheetNotFound:
         return pd.DataFrame(columns=DATA_HEADERS)
     except gspread.exceptions.APIError:
@@ -817,12 +817,14 @@ with tab1:
         add = st.form_submit_button("Tilføj")
         if add:
             today = dt.date.today()
+            logged_at = datetime.now(TZ).isoformat(timespec="seconds")  # lokal tid m. offset, fx 2025-11-01T14:23:55+01:00
             row = [
                 user,
                 today.isoformat(),
                 int(qty),
                 monday_of_week(today).isoformat(),
                 today.isocalendar().week,
+                logged_at,                     # <-- NY
             ]
 
             try:
@@ -904,19 +906,30 @@ with tab1:
     st.subheader("Dagens pull-ups!")
 
     if my_week.empty:
-        st.dataframe(pd.DataFrame(columns=["date", "pullups"]), use_container_width=True)
+        st.dataframe(pd.DataFrame(columns=["tid", "pullups"]), use_container_width=True)
     else:
-        # Filtrér til dagens dato
+        # Filtrér til dagens dato (som før)
         today_str = dt.date.today().isoformat()
-        today_logs = my_week[my_week["date"] == today_str]
+        today_logs = my_week[my_week["date"] == today_str].copy()
 
         if today_logs.empty:
             st.info("Ingen logs for i dag endnu.")
         else:
+            # Parse tidsstempel; håndtér at gamle rækker kan være tomme
+            # utc=True gør parsing robust (bevarer offset, konverterer til UTC internt)
+            t = pd.to_datetime(today_logs.get("logged_at"), errors="coerce", utc=True)
+
+            # Konverter til lokal tid (Europe/Copenhagen) og formater HH:MM
+            local_t = t.dt.tz_convert(TZ)
+            today_logs["tid"] = local_t.dt.strftime("%H:%M").fillna("—")
+
+            # Sortér nyeste først; NaT (gamle rækker uden logged_at) nederst
+            today_logs = today_logs.assign(_t=t).sort_values("_t", ascending=False)
+
             st.dataframe(
-                today_logs[["date", "pullups"]]
-                .sort_values("date", ascending=False)
-                .reset_index(drop=True),
+                today_logs[["tid", "pullups"]]
+                    .rename(columns={"pullups": "antal"})
+                    .reset_index(drop=True),
                 use_container_width=True,
                 hide_index=True
             )
