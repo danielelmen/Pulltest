@@ -283,26 +283,19 @@ def get_client_and_sheet():
 @st.cache_data(show_spinner=False)
 def load_motivation_messages(_date_key: str) -> list[str]:
     """
-    _date_key bruges kun til at invaliderer cachen ved dato-skift.
+    _date_key bruges kun til cache-invalidation ved dato-skift.
     """
-    gc = get_client_and_sheet()
+    # Få både klient og sheet fra den kanoniske resource-funktion
+    _, sh = get_client_and_sheet()
 
     # Brug gs_retry omkring alle netværkskald til Sheets
     try:
-        sh = gs_retry(gc.open, SHEET_NAME)
-    except APIError:
-        # Hvis alle forsøg fejler, fail-soft (vis standardbanner)
-        return []
-
-    try:
         ws = gs_retry(sh.worksheet, MOTIVATION_TAB)
     except WorksheetNotFound:
-        # Fane mangler — fail-soft
         return []
     except APIError:
         return []
 
-    # Forsøg at læse rækker som records
     try:
         values = gs_retry(ws.get_all_records, head=1, default_blank="")
     except APIError:
@@ -316,16 +309,14 @@ def load_motivation_messages(_date_key: str) -> list[str]:
             col = gs_retry(ws.col_values, 1)
         except APIError:
             col = []
-        # drop evt. header hvis du har en
         msgs = [x for x in col if x and str(x).strip().lower() != "message"]
         return [str(m).strip() for m in msgs if str(m).strip()]
 
-    # filtrér på enabled hvis kolonnen findes
     if "enabled" in df.columns:
         df = df[df["enabled"].astype(str).str.upper().isin(["TRUE", "1", "YES"])]
 
-    msgs = [str(m).strip() for m in df["message"].tolist() if str(m).strip()]
-    return msgs
+    return [str(m).strip() for m in df["message"].tolist() if str(m).strip()]
+
 
 def pick_today_message(messages: list[str]) -> str:
     if not messages:
