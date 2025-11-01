@@ -150,69 +150,6 @@ def gs_retry(fn, *args, **kwargs):
                 raise
             time.sleep(d + random.random()*0.1)
 
-@st.cache_data(ttl=60)
-def list_user_tabs() -> List[str]:
-    """Returnér alle data-faner (ekskl. _settings og skjulte)."""
-    _, sh = get_client_and_sheet()
-    # <- beskyt API-kaldet med gs_retry
-    worksheets = gs_retry(sh.worksheets)
-    titles = [ws.title for ws in worksheets]
-    return [t for t in titles if t != SETTINGS_SHEET and not t.startswith("_")]
-
-@st.cache_data(ttl=15)
-def read_all_users_df(tab_names: List[str]) -> pd.DataFrame:
-    """Læs alle brugeres data og returnér ét samlet DF med DATA_HEADERS."""
-    if not tab_names:
-        return pd.DataFrame(columns=DATA_HEADERS)
-
-    frames = []
-    _, sh = get_client_and_sheet()
-
-    for name in tab_names:
-        try:
-            # <- Begge netværkskald beskyttes af retry
-            ws = gs_retry(sh.worksheet, name)
-            values = gs_retry(ws.get, "A1:F10000")
-
-            if not values:
-                continue
-
-            headers = values[0]
-            rows = values[1:]
-
-            # Normalisér rækker ift. headers-længde
-            rows = [r + [""] * (len(headers) - len(r)) for r in rows]
-            rows = [r[:len(headers)] for r in rows]
-
-            df_i = pd.DataFrame(rows, columns=headers)
-
-            if not df_i.empty:
-                # Sikr kolonner og typer
-                if "pullups" in df_i.columns:
-                    df_i["pullups"] = pd.to_numeric(df_i["pullups"], errors="coerce").fillna(0).astype(int)
-                frames.append(df_i)
-
-        except gspread.exceptions.WorksheetNotFound:
-            # Fanen findes ikke (kan være slettet i mellemtiden) -> spring over
-            continue
-        except gspread.exceptions.APIError:
-            # Midlertidig fejl selv efter retries -> spring denne fane over
-            # (alternativ: re-raise hvis du hellere vil fail'e hårdt)
-            continue
-
-    if not frames:
-        return pd.DataFrame(columns=DATA_HEADERS)
-
-    df = pd.concat(frames, ignore_index=True)
-
-    # Udfyld evt. manglende kolonner og bestil kolonne-rækkefølge
-    for c in DATA_HEADERS:
-        if c not in df.columns:
-            df[c] = 0 if c == "pullups" else ""
-
-    # Returnér kun de forventede kolonner i korrekt orden
-    return df[DATA_HEADERS]
-
 
 # --- UI helper & styles ---
 def format_int(n: int) -> str:
@@ -241,6 +178,7 @@ st.markdown("""
 # -------- Community helpers --------
 from typing import List
 
+#Blok3
 @st.cache_data(ttl=60)
 def list_user_tabs() -> List[str]:
     """Returnér alle data-faner (ekskl. _settings og skjulte)."""
@@ -253,6 +191,7 @@ def list_user_tabs() -> List[str]:
     # filtrér bort settings og skjulte faner
     return [t for t in titles if t != SETTINGS_SHEET and not t.startswith("_")]
 
+#Blok4
 @st.cache_data(ttl=30)  # evt. lidt længere cache for at skåne API'et
 def read_all_users_df(tab_names: List[str]) -> pd.DataFrame:
     """Læs alle brugeres data og returnér ét samlet DF med samme kolonner som DATA_HEADERS."""
@@ -325,21 +264,28 @@ TZ = pytz.timezone("Europe/Copenhagen")
 
 # --- Google Sheets klient (cachet) ---
 @st.cache_resource(show_spinner=False)
-def get_gs_client():
+def get_client_and_sheet():
+    # Autoriser én gang pr. process
     creds = Credentials.from_service_account_info(st.secrets["gcp_service_account"])
     scoped = creds.with_scopes([
         "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive"
+        "https://www.googleapis.com/auth/drive",
     ])
-    return gspread.authorize(scoped)
+    gc = gspread.authorize(scoped)
+
+    # Åbn selve regnearket med retry (kan fejle ved 429/5xx)
+    sh = gs_retry(gc.open, SHEET_NAME)
+    return gc, sh
+
 
 # --- Hent beskeder (cachet pr. dag for automatisk skift ved midnat) ---
+#Blok6
 @st.cache_data(show_spinner=False)
 def load_motivation_messages(_date_key: str) -> list[str]:
     """
     _date_key bruges kun til at invaliderer cachen ved dato-skift.
     """
-    gc = get_gs_client()
+    gc = get_client_and_sheet()
 
     # Brug gs_retry omkring alle netværkskald til Sheets
     try:
@@ -504,18 +450,6 @@ def user_tab(username: str) -> str:
     u = re.sub(r'-{2,}', '-', u).strip('-')[:90]
     return u or "user"
 
-@st.cache_resource
-def get_client_and_sheet():
-    creds = Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],
-        scopes=[
-            "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive",
-        ],
-    )
-    gc = gspread.authorize(creds)
-    sh = gc.open(SHEET_NAME)
-    return gc, sh
 
 def ensure_user_ws(tab_name: str):
     """Åbn eller opret data-fanen (ingen cache her)."""
@@ -558,7 +492,7 @@ def ensure_settings_ws():
 
     return ws
 
-
+#Blok8
 @st.cache_data(ttl=20)  # evt. en anelse højere end 15 for færre API-kald
 def read_user_df(tab_name: str) -> pd.DataFrame:
     _, sh = get_client_and_sheet()
@@ -594,7 +528,7 @@ def read_user_df(tab_name: str) -> pd.DataFrame:
     # Returnér kun i den forventede kolonneorden
     return df[DATA_HEADERS]
 
-
+#Blok9
 @st.cache_data(ttl=120)  # du kan evt. øge TTL, da settings sjældent ændres
 def read_settings_df() -> pd.DataFrame:
     ws = ensure_settings_ws()
